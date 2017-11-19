@@ -83,7 +83,7 @@ static INIT: AtomicBool = ATOMIC_BOOL_INIT;
 ///
 pub fn set_handler<F>(user_handler: F) -> Result<(), Error>
 where
-    F: Fn() -> () + 'static + Send,
+    F: FnOnce() -> () + 'static + Send,
 {
     if INIT.compare_and_swap(false, true, Ordering::SeqCst) {
         return Err(Error::MultipleHandlers);
@@ -99,7 +99,7 @@ where
         }
     }
 
-    thread::spawn(move || loop {
+    thread::spawn(move ||  {
         unsafe {
             platform::block_ctrl_c().expect("Critical system error while waiting for Ctrl-C");
         }
